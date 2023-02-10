@@ -3,7 +3,7 @@
 # ● i != j,
 # ● abs(i - j) &lt;= indexDiff.
 # ● abs(nums[i] - nums[j]) &lt;= valueDiff, and
-# Return true if such pair exists or false otherwise.
+# Return true if such pair exists or false otherwise
 
 def pair(nums, indexDiff, valueDiff):
     n = len(nums)
