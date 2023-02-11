@@ -36,7 +36,6 @@ class ItemInline(admin.TabularInline):
     model = MyBag.items.through
 
 
-
 @admin.register(MyBag)
 class MyBagAdmin(admin.ModelAdmin):
     list_display = ['customer', 'total_price']
