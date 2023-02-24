@@ -1,5 +1,10 @@
 from django.contrib import admin
+
+#
 from .models import StoreCategory, ItemCategory, Customer, StoreOwner, Store, Item, MyBag, Purchase
+
+# Change Header
+admin.site.site_header = "Online Shop"
 
 
 @admin.register(StoreCategory)

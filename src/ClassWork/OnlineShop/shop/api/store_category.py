@@ -1,8 +1,11 @@
 import json
 
-from django.core.exceptions import ObjectDoesNotExist
+#
 from django.http import HttpResponse
 from django.views.generic import View
+from django.core.exceptions import ObjectDoesNotExist
+
+#
 from ..models import StoreCategory
 
 
@@ -11,7 +14,7 @@ class StoreCategoryView(View):
     @staticmethod
     def data_status(data):
         return HttpResponse(
-            json.dumps({"data": data, 'status': 'ok'}),
+            json.dumps(data),
             status=200,
             content_type='application/json',
         )
@@ -22,30 +25,28 @@ class StoreCategoryView(View):
             json.dumps({"status": "ok"}), status=200, content_type="application/json"
         )
 
-    def get(self, request):
+    @staticmethod
+    def get(request):
         categories = StoreCategory.objects.all()
         print(categories)
         data = []
         for category in categories:
-            data.append({'name': category.name})
-        return self.data_status(data)
+            category_data = {
+                'id': category.id,
+                'name': category.name,
+                'picture': request.build_absolute_uri(category.picture.url) if category.picture else None,
+            }
+            data.append(category_data)
+        return StoreCategoryView.data_status(data)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         data = json.loads(request.body)
         category = StoreCategory.objects.create(
             name=data['name']
         )
         category.save()
-        return self.ok_status()
-
-    @staticmethod
-    def check_view(request, id):
-        if request.method == "GET":
-            return StoreCategoryView.get_single(request, id)
-        if request.method == "DELETE":
-            return StoreCategoryView.delete(request, id)
-        if request.method == "PATCH":
-            return StoreCategoryView.edit(request, id)
+        return StoreCategoryView.ok_status()
 
     @staticmethod
     def get_single(request, id):
@@ -54,7 +55,11 @@ class StoreCategoryView(View):
             category = StoreCategory.objects.get(id=id)
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
-        return StoreCategoryView.data_status({"id": category.id, "name": category.name})
+        return StoreCategoryView.data_status({
+            "id": category.id,
+            "name": category.name,
+            'picture': request.build_absolute_uri(category.picture.url) if category.picture else None,
+        })
 
     @staticmethod
     def delete(request, id):
@@ -80,3 +85,12 @@ class StoreCategoryView(View):
             category.name = data['name']
         category.save()
         return StoreCategoryView.ok_status()
+
+    @staticmethod
+    def check_view(request, id):
+        if request.method == "GET":
+            return StoreCategoryView.get_single(request, id)
+        if request.method == "DELETE":
+            return StoreCategoryView.delete(request, id)
+        if request.method == "PATCH":
+            return StoreCategoryView.edit(request, id)
