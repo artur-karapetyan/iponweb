@@ -8,22 +8,12 @@ from django.core.exceptions import ObjectDoesNotExist
 #
 from ..models import ItemCategory
 
+#
+from ..tools.data_status import data_status
+from ..tools.ok_status import ok_status
+
 
 class ItemCategoryView(View):
-
-    @staticmethod
-    def data_status(data):
-        return HttpResponse(
-            json.dumps(data),
-            status=200,
-            content_type='application/json',
-        )
-
-    @staticmethod
-    def ok_status():
-        return HttpResponse(
-            json.dumps({"status": "ok"}), status=200, content_type="application/json"
-        )
 
     @staticmethod
     def get(request):
@@ -37,7 +27,7 @@ class ItemCategoryView(View):
                 'picture': request.build_absolute_uri(category.picture.url) if category.picture else None,
             }
             data.append(category_data)
-        return ItemCategoryView.data_status(data)
+        return data_status(data)
 
     @staticmethod
     def post(request):
@@ -46,7 +36,7 @@ class ItemCategoryView(View):
             name=data['name']
         )
         category.save()
-        return ItemCategoryView.ok_status()
+        return ok_status()
 
     @staticmethod
     def get_single(request, id):
@@ -55,7 +45,7 @@ class ItemCategoryView(View):
             category = ItemCategory.objects.get(id=id)
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
-        return ItemCategoryView.data_status({
+        return data_status({
             "id": category.id,
             "name": category.name,
             'picture': request.build_absolute_uri(category.picture.url) if category.picture else None,
@@ -70,7 +60,7 @@ class ItemCategoryView(View):
             return HttpResponse({"status": "obj_not_found"})
 
         category.delete()
-        return ItemCategoryView.ok_status()
+        return ok_status()
 
     @staticmethod
     def edit(request, id):
@@ -84,7 +74,7 @@ class ItemCategoryView(View):
         if "name" in data:
             category.name = data['name']
         category.save()
-        return ItemCategoryView.ok_status()
+        return ok_status()
 
     @staticmethod
     def check_view(request, id):

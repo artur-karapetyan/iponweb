@@ -1,10 +1,24 @@
 from django.contrib import admin
 
 #
-from .models import StoreCategory, ItemCategory, Customer, StoreOwner, Store, Item, MyBag, Purchase
+from .models import StoreCategory, ItemCategory, Customer, StoreOwner, Store, Item, MyBag, Purchase, UserAuth
 
 # Change Header
 admin.site.site_header = "Online Shop"
+
+
+@admin.register(UserAuth)
+class UserAuthAdmin(admin.ModelAdmin):
+    list_display = ("user_info", 'verification_code')
+    search_fields = ("user__first_name", "user__last_name")
+
+    #
+    def user_info(self, obj):
+        return "{}".format(
+            " ".join([obj.user.first_name, obj.user.last_name])
+        )
+
+    user_info.short_description = "Generic user"
 
 
 @admin.register(StoreCategory)

@@ -10,22 +10,12 @@ from django.core.exceptions import ObjectDoesNotExist
 #
 from ..models import Customer
 
+#
+from ..tools.data_status import data_status
+from ..tools.ok_status import ok_status
+
 
 class CustomerView(View):
-
-    @staticmethod
-    def data_status(data):
-        return HttpResponse(
-            json.dumps(data),
-            status=200,
-            content_type='application/json',
-        )
-
-    @staticmethod
-    def ok_status():
-        return HttpResponse(
-            json.dumps({"status": "ok"}), status=200, content_type="application/json"
-        )
 
     @staticmethod
     def get(request):
@@ -43,7 +33,7 @@ class CustomerView(View):
                 'avatar': request.build_absolute_uri(customer.avatar.url) if customer.avatar else None,
             }
             data.append(customer_data)
-        return CustomerView.data_status(data)
+        return data_status(data)
 
     @staticmethod
     def post(request):
@@ -60,7 +50,7 @@ class CustomerView(View):
 
         customer = Customer(user=user, registered_at=registered_at, avatar=avatar)
         customer.save()
-        return CustomerView.ok_status()
+        return ok_status()
 
     @staticmethod
     def get_single(request, id):
@@ -69,7 +59,7 @@ class CustomerView(View):
             customer = Customer.objects.get(id=id)
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
-        return CustomerView.data_status({
+        return data_status({
             "id": customer.id,
             'customer': {
                 'id': customer.user.id,
@@ -89,7 +79,7 @@ class CustomerView(View):
             return HttpResponse({"status": "obj_not_found"})
 
         customer.delete()
-        return CustomerView.ok_status()
+        return ok_status()
 
     @staticmethod
     def edit(request, id):
@@ -108,7 +98,7 @@ class CustomerView(View):
             except ObjectDoesNotExist:
                 return HttpResponse({'status': 'obj_not_found'})
         customer.save()
-        return CustomerView.ok_status()
+        return ok_status()
 
     @staticmethod
     def check_view(request, id):

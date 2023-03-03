@@ -9,22 +9,12 @@ from django.core.exceptions import ObjectDoesNotExist
 #
 from ..models import Store, StoreCategory, StoreOwner
 
+#
+from ..tools.data_status import data_status
+from ..tools.ok_status import ok_status
+
 
 class StoreView(View):
-
-    @staticmethod
-    def data_status(data):
-        return HttpResponse(
-            json.dumps(data),
-            status=200,
-            content_type='application/json',
-        )
-
-    @staticmethod
-    def ok_status():
-        return HttpResponse(
-            json.dumps({"status": "ok"}), status=200, content_type="application/json"
-        )
 
     @staticmethod
     def get(request):
@@ -43,7 +33,7 @@ class StoreView(View):
                 },
             }
             data.append(store_data)
-        return StoreView.data_status(data)
+        return data_status(data)
 
     @staticmethod
     def post(request):
@@ -61,7 +51,7 @@ class StoreView(View):
 
         store = Store(store_category=category, name=name, owner=owner)
         store.save()
-        return StoreView.ok_status()
+        return ok_status()
 
     @staticmethod
     def get_single(request, id):
@@ -70,7 +60,7 @@ class StoreView(View):
             store = Store.objects.get(id=id)
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
-        return StoreView.data_status({
+        return data_status({
             'id': store.id,
             'store_category': store.store_category.name,
             'name': store.name,
@@ -90,7 +80,7 @@ class StoreView(View):
             return HttpResponse({"status": "obj_not_found"})
 
         store.delete()
-        return StoreView.ok_status()
+        return ok_status()
 
     @staticmethod
     def edit(request, id):
@@ -123,7 +113,7 @@ class StoreView(View):
                 return HttpResponse({'status': 'obj_not_found'})
 
         store.save()
-        return StoreView.ok_status()
+        return ok_status()
 
     @staticmethod
     def check_view(request, id):

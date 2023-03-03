@@ -8,6 +8,10 @@ from django.views.generic import View
 #
 from ..models import Item, Customer, Purchase
 
+#
+from ..tools.data_status import data_status
+from ..tools.ok_status import ok_status
+
 
 class PurchaseView(View):
 
@@ -17,20 +21,6 @@ class PurchaseView(View):
         for item in purchase.items.all():
             total_price += item.price
         purchase.total_price = total_price
-
-    @staticmethod
-    def data_status(data):
-        return HttpResponse(
-            json.dumps(data),
-            status=200,
-            content_type='application/json',
-        )
-
-    @staticmethod
-    def ok_status():
-        return HttpResponse(
-            json.dumps({"status": "ok"}), status=200, content_type="application/json"
-        )
 
     @staticmethod
     def get(request):
@@ -52,7 +42,7 @@ class PurchaseView(View):
                 "total_price": purchase.total_price,
             }
             data.append(purchase_data)
-        return PurchaseView.data_status(data)
+        return data_status(data)
 
     @staticmethod
     def post(request):
@@ -69,7 +59,7 @@ class PurchaseView(View):
             PurchaseView.calculate_total_sum(purchase)
             purchase.save()
 
-            return PurchaseView.ok_status()
+            return ok_status()
         except ObjectDoesNotExist:
             return HttpResponse("Invalid data", status=400)
 
@@ -80,7 +70,7 @@ class PurchaseView(View):
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
 
-        return PurchaseView.data_status({
+        return data_status({
             "customer": purchase.customer.user.username,
             "buy_time": purchase.buy_time.isoformat(),
             "items": [
@@ -103,7 +93,7 @@ class PurchaseView(View):
             return HttpResponse({"status": "obj_not_found"})
 
         purchase.delete()
-        return PurchaseView.ok_status()
+        return ok_status()
 
     @staticmethod
     def edit(request, id):
@@ -121,7 +111,7 @@ class PurchaseView(View):
 
             purchase.save()
 
-            return PurchaseView.ok_status()
+            return ok_status()
         except ObjectDoesNotExist:
             return HttpResponse({'status': 'obj_not_found'})
 

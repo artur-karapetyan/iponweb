@@ -1,6 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth.models import User
+
+
+class UserAuth(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    verification_code = models.CharField(max_length=6)
 
 
 class StoreCategory(models.Model):

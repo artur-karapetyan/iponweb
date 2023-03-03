@@ -10,22 +10,12 @@ from django.core.exceptions import ObjectDoesNotExist
 #
 from ..models import StoreOwner
 
+#
+from ..tools.data_status import data_status
+from ..tools.ok_status import ok_status
+
 
 class StoreOwnerView(View):
-
-    @staticmethod
-    def data_status(data):
-        return HttpResponse(
-            json.dumps(data),
-            status=200,
-            content_type='application/json',
-        )
-
-    @staticmethod
-    def ok_status():
-        return HttpResponse(
-            json.dumps({"status": "ok"}), status=200, content_type="application/json"
-        )
 
     @staticmethod
     def get(request):
@@ -43,7 +33,7 @@ class StoreOwnerView(View):
                 'avatar': request.build_absolute_uri(owner.avatar.url) if owner.avatar else None,
             }
             data.append(owner_data)
-        return StoreOwnerView.data_status(data)
+        return data_status(data)
 
     @staticmethod
     def post(request):
@@ -60,7 +50,7 @@ class StoreOwnerView(View):
 
         owner = StoreOwner(user=user, registered_at=registered_at, avatar=avatar)
         owner.save()
-        return StoreOwnerView.ok_status()
+        return ok_status()
 
     @staticmethod
     def get_single(request, id):
@@ -69,7 +59,7 @@ class StoreOwnerView(View):
             owner = StoreOwner.objects.get(id=id)
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
-        return StoreOwnerView.data_status({
+        return data_status({
             "id": owner.id,
             'user': {
                 'id': owner.user.id,
@@ -89,7 +79,7 @@ class StoreOwnerView(View):
             return HttpResponse({"status": "obj_not_found"})
 
         owner.delete()
-        return StoreOwnerView.ok_status()
+        return ok_status()
 
     @staticmethod
     def edit(request, id):
@@ -108,7 +98,7 @@ class StoreOwnerView(View):
             except ObjectDoesNotExist:
                 return HttpResponse({'status': 'obj_not_found'})
         owner.save()
-        return StoreOwnerView.ok_status()
+        return ok_status()
 
     @staticmethod
     def check_view(request, id):

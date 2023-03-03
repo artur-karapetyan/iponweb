@@ -8,6 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist
 #
 from ..models import Item, Customer, MyBag
 
+#
+from ..tools.data_status import data_status
+from ..tools.ok_status import ok_status
+
 
 class MyBagView(View):
 
@@ -17,20 +21,6 @@ class MyBagView(View):
         for item in mybag.items.all():
             total_price += item.price
         mybag.total_price = total_price
-
-    @staticmethod
-    def data_status(data):
-        return HttpResponse(
-            json.dumps(data),
-            status=200,
-            content_type='application/json',
-        )
-
-    @staticmethod
-    def ok_status():
-        return HttpResponse(
-            json.dumps({"status": "ok"}), status=200, content_type="application/json"
-        )
 
     @staticmethod
     def get(request):
@@ -51,7 +41,7 @@ class MyBagView(View):
                 "total_price": mybag.total_price,
             }
             data.append(bag_data)
-        return MyBagView.data_status(data)
+        return data_status(data)
 
     @staticmethod
     def post(request):
@@ -68,7 +58,7 @@ class MyBagView(View):
             MyBagView.calculate_total_sum(mybag)
             mybag.save()
 
-            return MyBagView.ok_status()
+            return ok_status()
         except ObjectDoesNotExist:
             return HttpResponse("Invalid data", status=400)
 
@@ -79,7 +69,7 @@ class MyBagView(View):
         except ObjectDoesNotExist:
             return HttpResponse({"status": "obj_not_found"})
 
-        return MyBagView.data_status({
+        return data_status({
             "customer_id": mybag.customer.id,
             "items": [
                 {
@@ -101,7 +91,7 @@ class MyBagView(View):
             return HttpResponse({"status": "obj_not_found"})
 
         mybag.delete()
-        return MyBagView.ok_status()
+        return ok_status()
 
     @staticmethod
     def edit(request, id):
@@ -119,7 +109,7 @@ class MyBagView(View):
 
             mybag.save()
 
-            return MyBagView.ok_status()
+            return ok_status()
         except ObjectDoesNotExist:
             return HttpResponse({'status': 'obj_not_found'})
 
